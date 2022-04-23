@@ -6,9 +6,9 @@
 #define EXAMPLE_LED_Port GPIOA
 #define EXAMPLE_LED_Pin GPIO_Pin_10
 
-///******* Vofa Serial Monitor *******///
-///******* Vofa Serial Monitor *******///
-
+///******* GPS USART *******///
+///******* GPS USART *******///
+#define GPS_UART huart2
 
 
 ///******* Power Sense *******///

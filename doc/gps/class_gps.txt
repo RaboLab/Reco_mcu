@@ -1,0 +1,85 @@
+
+#define GPS_Buffer_Length 80
+#define UTCTime_Length 11
+#define latitude_Length 11
+#define N_S_Length 2
+#define longitude_Length 12
+#define E_W_Length 2 
+
+typedef struct SaveData 
+{
+	char GPS_Buffer[GPS_Buffer_Length];
+	char isGetData;		//ʇ·񻱈¡µ½GPSʽ¾ݍ
+	char isParseData;	//ʇ·񽢎öͪ³ɍ
+	char UTCTime[UTCTime_Length];		//UTCʱ¼䍊	
+                char latitude[latitude_Length];		//γ¶ȍ
+	char N_S[N_S_Length];		//N/S
+	char longitude[longitude_Length];		//¾­¶ȍ
+	char E_W[E_W_Length];		//E/W
+	char isUsefull;		//¶¨λЅϢʇ·񓐐§
+} _SaveData;
+
+
+
+for (int x = 0; x < len; x++)
+		{
+			printf("%c", *((char*)ptr_val + x));
+			printf("\n");
+		}
+		ptr_val = int(ptr);
+
+
+
+
+void uart_init(u32 bound);
+extern char rxdatabufer;
+extern u16 point1;
+extern _SaveData Save_Data;
+
+void CLR_Buf(void);
+u8 Hand(char *a);
+void clrStruct(void);
+#endif
+
+
+
+
+
+
+#include <iostream>
+#include <string.h>
+#include <cctype>
+#include <vector>
+using namespace std;
+
+int main()
+{
+	char source[] = "GNRMC,124237.000,A,3113,82117,N,12118,77935,E,0.00,0.00,100422,,,A*7D";
+	char non[] = "GNRMC,144341.000,V,,,,,,,010222,,,N*57";
+	char target[] = ",";
+
+	int ptr_val = 0;
+	int len = 0;
+
+	char* ptr;
+	char* old_ptr;
+
+
+	for (ptr = source; ; ptr = ptr + 1)
+	{
+		ptr_val = int(ptr);
+		old_ptr = ptr;
+
+		ptr = strstr(ptr, target);
+		if (ptr == 0) break;
+		len = int(ptr) - ptr_val;		//len
+		cout << len << endl;
+		for (int x = 0; x < len; x++)
+		{
+			cout << old_ptr[x];			// every char
+		}
+		cout << endl;
+	}
+
+	return 0;
+}

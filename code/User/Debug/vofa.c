@@ -29,7 +29,19 @@ static void vofa_send_method(uint8_t *mem, uint16_t data_bytes)
 		HAL_UART_Transmit_DMA(&VOFA_UART, mem, data_bytes);
 	#endif
 }
-
+void USB_Reset(void)
+{
+  GPIO_InitTypeDef GPIO_InitStruct = {0};
+	__HAL_RCC_GPIOA_CLK_ENABLE();
+	GPIO_InitStruct.Pin = GPIO_PIN_12;
+	GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
+	GPIO_InitStruct.Pull = GPIO_NOPULL;
+	GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
+	HAL_GPIO_Init(GPIOA, &GPIO_InitStruct);
+	HAL_GPIO_WritePin(GPIOA,GPIO_PIN_12,GPIO_PIN_RESET);
+	HAL_Delay(2000);
+	HAL_GPIO_WritePin(GPIOA,GPIO_PIN_12,GPIO_PIN_SET);
+}
 ////////////////////////////////////////////////////////////////////////////
 
 void vofa_printf(const char * format, ...) {

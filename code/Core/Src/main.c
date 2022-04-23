@@ -28,7 +28,8 @@
 /* USER CODE BEGIN Includes */
 
 #include "vofa.h"
-
+#include "loop_it.h"
+#include "loop.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -98,7 +99,7 @@ int main(void)
   MX_USART3_UART_Init();
   MX_USB_DEVICE_Init();
   /* USER CODE BEGIN 2 */
-	vofa.init();
+	loop();
 	
   /* USER CODE END 2 */
 
@@ -162,20 +163,8 @@ void SystemClock_Config(void)
 }
 
 /* USER CODE BEGIN 4 */
-/*USB 重新枚举函数*/
-void USB_Reset(void)
-{
-  GPIO_InitTypeDef GPIO_InitStruct = {0};
-	__HAL_RCC_GPIOA_CLK_ENABLE();
-	GPIO_InitStruct.Pin = GPIO_PIN_12;
-	GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
-	GPIO_InitStruct.Pull = GPIO_NOPULL;
-	GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
-	HAL_GPIO_Init(GPIOA, &GPIO_InitStruct);
-	HAL_GPIO_WritePin(GPIOA,GPIO_PIN_12,GPIO_PIN_RESET);
-	HAL_Delay(500);
-	HAL_GPIO_WritePin(GPIOA,GPIO_PIN_12,GPIO_PIN_SET);
-}
+
+
 
 /* USER CODE END 4 */
 

@@ -43,6 +43,7 @@ typedef struct {
 } vofa_t;
 
 extern vofa_t vofa;
+void USB_Reset(void);
 void vofa_printf(const char * format, ...);
 
 #endif

@@ -1,5 +1,6 @@
 #include "loop.h"
 #include "vofa.h"
+#include "gps.h"
 
 
 bool sys_tick_changed_flag = false;
@@ -12,18 +13,18 @@ uint8_t time_100ms_flag = 0;
 
 void loop(void)
 {
-	HAL_Delay(100);  //等待系统硬件稳定
-
 	//Device Init//
-
+	GPS_Init();
+	
 	//Communication Init//
 	vofa.init();
-
-	//中断接管，心跳程序变成20kHZ (可以更高)
-	SysTickUpdate();
+	
+	
+	
+	//SysTickUpdate();
 	while (1)
 	{
-		TaskCheck();
+		//TaskCheck();
 	}
 }
 
