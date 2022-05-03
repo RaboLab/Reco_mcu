@@ -16,10 +16,8 @@ struct time {
 struct locate {
 	uint8_t ns;	//weidu
 	uint8_t ew;
-	double weidu;
-	double jingdu;
-	double speed;  //knots
-	double angle;
+	float weidu;
+	float jingdu;
 };
 typedef struct gps_struct {
 	struct calendar cal;
