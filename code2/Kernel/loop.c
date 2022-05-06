@@ -21,11 +21,15 @@ void loop(void)
 	//Communication Init//
 	vofa.init();
 
-	HAL_GPIO_WritePin(LED_GPIO_Port, LED_Pin, GPIO_PIN_RESET);
-	HAL_GPIO_WritePin(RPW_GPIO_Port, RPW_Pin, GPIO_PIN_SET);
+	HAL_GPIO_WritePin(LED_GPIO_Port, LED_Pin, GPIO_PIN_RESET);		//LED ON
+	HAL_GPIO_WritePin(RPW_GPIO_Port, RPW_Pin, GPIO_PIN_SET);			//PWR ON
+
+		HAL_GPIO_WritePin(BUZZER_GPIO_Port,BUZZER_Pin, GPIO_PIN_RESET);
 	while (1)
 	{
-		TaskCheck();
+		HAL_GPIO_TogglePin(BUZZER_GPIO_Port,BUZZER_Pin);
+		HAL_Delay(500);
+		//TaskCheck();
 	}
 }
 
