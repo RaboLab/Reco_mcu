@@ -22,13 +22,20 @@ void loop(void)
 	vofa.init();
 
 	HAL_GPIO_WritePin(LED_GPIO_Port, LED_Pin, GPIO_PIN_RESET);		//LED ON
-	HAL_GPIO_WritePin(RPW_GPIO_Port, RPW_Pin, GPIO_PIN_SET);			//PWR ON
+	//HAL_GPIO_WritePin(RPW_GPIO_Port, RPW_Pin, GPIO_PIN_SET);			//PWR ON
+	HAL_GPIO_WritePin(RPW_GPIO_Port, RPW_Pin, GPIO_PIN_RESET);			//PWR RESET
 
-		HAL_GPIO_WritePin(BUZZER_GPIO_Port,BUZZER_Pin, GPIO_PIN_RESET);
+		HAL_GPIO_WritePin(BUZZER_GPIO_Port,BUZZER_Pin, GPIO_PIN_RESET);		//Buzzer OFF
 	while (1)
 	{
-		HAL_GPIO_TogglePin(BUZZER_GPIO_Port,BUZZER_Pin);
-		HAL_Delay(500);
+		HAL_GPIO_WritePin(BUZZER_GPIO_Port,BUZZER_Pin, GPIO_PIN_SET);
+		HAL_Delay(10);
+		HAL_GPIO_WritePin(BUZZER_GPIO_Port,BUZZER_Pin, GPIO_PIN_RESET);
+		HAL_Delay(80);
+		HAL_GPIO_WritePin(BUZZER_GPIO_Port,BUZZER_Pin, GPIO_PIN_SET);
+		HAL_Delay(10);
+		HAL_GPIO_WritePin(BUZZER_GPIO_Port,BUZZER_Pin, GPIO_PIN_RESET);
+		HAL_Delay(2000);
 		//TaskCheck();
 	}
 }
