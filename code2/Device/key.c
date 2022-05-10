@@ -16,9 +16,9 @@ uint16_t GPIOE_Cont;
 //PRESS: GPIO.value=0, Trg = 1, Cnt = 1. 
 //Which means: while key press, trg & Cnt = True
 
-void GPIO_Key_Read(GPIO_TypeDef *GPIOx)
+void RAB_GPIO_Key_Read(GPIO_TypeDef *GPIOx)
 {
-	uint16_t ReadData = (uint16_t)GPIOx->IDR ^ 0xFFFF;	// 16	KEY_DOWN WHEN ACTIVATE
+	uint16_t ReadData = (uint16_t)GPIOx->IDR ^ 0xFFFF;	  // 16	  KEY_DOWN WHEN ACTIVATE
 //	uint16_t ReadData = (uint16_t)GPIOx->IDR ^ 0xFFFF;	// 16   KEY_UP   WHEN ACTIVATE
 	if(GPIOx == GPIOA)
 	{

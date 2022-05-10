@@ -17,7 +17,7 @@ extern uint16_t GPIOD_Cont;
 
 extern uint16_t GPIOE_Trg;
 extern uint16_t GPIOE_Cont;
-void GPIO_Key_Read(GPIO_TypeDef *GPIOx);
+void RAB_GPIO_Key_Read(GPIO_TypeDef *GPIOx);
 
 
 #endif

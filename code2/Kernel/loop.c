@@ -2,6 +2,7 @@
 #include "loop_it.h"
 
 #include "imu.h"
+#include "key.h"
 
 #include "vofa.h"
 
@@ -36,6 +37,10 @@ void loop(void)
 		HAL_Delay(10);
 		HAL_GPIO_WritePin(BUZZER_GPIO_Port,BUZZER_Pin, GPIO_PIN_RESET);
 		HAL_Delay(2000);
+		if(HAL_GPIO_ReadPin(USR_KEY_GPIO_Port,USR_KEY_Pin) == 0)
+		{
+			HAL_GPIO_WritePin(RPW_GPIO_Port, RPW_Pin, GPIO_PIN_SET);
+		}
 		//TaskCheck();
 	}
 }
