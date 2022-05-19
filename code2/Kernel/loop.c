@@ -11,36 +11,24 @@ uint8_t time_10ms_flag = 0;
 uint8_t time_20ms_flag = 0;
 uint8_t time_50ms_flag = 0;
 uint8_t time_100ms_flag = 0;
-
+uint8_t bufxx;
 void loop(void)
 {
 	HAL_Delay(100);  //
 
 	//Device Init//
-	//IMU_Fetch_Init();
+	IMU_Fetch_Init();
 	
 	//Communication Init//
 	vofa.init();
 
-	HAL_GPIO_WritePin(LED_GPIO_Port, LED_Pin, GPIO_PIN_RESET);		//LED ON
-	//HAL_GPIO_WritePin(RPW_GPIO_Port, RPW_Pin, GPIO_PIN_SET);			//PWR ON
-	HAL_GPIO_WritePin(RPW_GPIO_Port, RPW_Pin, GPIO_PIN_RESET);			//PWR RESET
-
-		HAL_GPIO_WritePin(BUZZER_GPIO_Port,BUZZER_Pin, GPIO_PIN_RESET);		//Buzzer OFF
+	// Utils //
+	//HAL_UART_Receive_IT(&huart1,&bufxx,1);
 	while (1)
 	{
-		HAL_GPIO_WritePin(BUZZER_GPIO_Port,BUZZER_Pin, GPIO_PIN_SET);
-		HAL_Delay(10);
-		HAL_GPIO_WritePin(BUZZER_GPIO_Port,BUZZER_Pin, GPIO_PIN_RESET);
-		HAL_Delay(80);
-		HAL_GPIO_WritePin(BUZZER_GPIO_Port,BUZZER_Pin, GPIO_PIN_SET);
-		HAL_Delay(10);
-		HAL_GPIO_WritePin(BUZZER_GPIO_Port,BUZZER_Pin, GPIO_PIN_RESET);
-		HAL_Delay(2000);
-		if(HAL_GPIO_ReadPin(USR_KEY_GPIO_Port,USR_KEY_Pin) == 0)
-		{
-			HAL_GPIO_WritePin(RPW_GPIO_Port, RPW_Pin, GPIO_PIN_SET);
-		}
+//		 
+//		HAL_UART_Transmit(&huart2,(uint8_t *)"HelloWorld!\n",12,0xff);
+		HAL_Delay(100);
 		//TaskCheck();
 	}
 }

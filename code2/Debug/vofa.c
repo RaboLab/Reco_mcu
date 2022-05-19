@@ -91,5 +91,6 @@ vofa_t vofa = {
 
     .init = vofa_init_method,
     .send = vofa_send_method,
+		.printf = vofa_printf,
 };
 

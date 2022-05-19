@@ -9,8 +9,6 @@ uint8_t* buffer_ptr;
 uint8_t buffer_11[88];
 uint8_t buffer_12[88];
 
-extern uint8_t usb_trans_flag;
-
 volatile uint8_t DMA_Mem_No1;
 
 jy62_t jy62;
@@ -19,23 +17,26 @@ __IO uint32_t jy62_2_rxCnt;
 
 void IMU_Fetch_Init(void)
 {
-
 	IMU_Uart_with_DMA_Init();
 }
 
 static void IMU_Uart_with_DMA_Init(void)
 {
-	SET_BIT(IMU_UART.Instance->CR3, USART_CR3_DMAR);
 	__HAL_UART_ENABLE_IT(&IMU_UART, UART_IT_IDLE);
-	__HAL_DMA_DISABLE(IMU_UART.hdmarx);
-	HAL_Delay(10);
-	IMU_UART.hdmarx->Instance->PAR = (uint32_t) & (IMU_UART.Instance->DR);
-	IMU_UART.hdmarx->Instance->M0AR = (uint32_t)buffer_11;
-	IMU_UART.hdmarx->Instance->M1AR = (uint32_t)buffer_12;
-	IMU_UART.hdmarx->Instance->NDTR = IMU_RX_BUFF_LEN * 2;
+	HAL_UART_Receive_DMA(&IMU_UART, buffer_11, 88);
 	
-	SET_BIT(IMU_UART.hdmarx->Instance->CR, DMA_SxCR_DBM);
-	__HAL_DMA_ENABLE(IMU_UART.hdmarx);
+	
+//	SET_BIT(IMU_UART.Instance->CR3, USART_CR3_DMAR);
+//	__HAL_UART_ENABLE_IT(&IMU_UART, UART_IT_IDLE);
+//	__HAL_DMA_DISABLE(IMU_UART.hdmarx);
+//	HAL_Delay(1);
+//	IMU_UART.hdmarx->Instance->PAR = (uint32_t) & (IMU_UART.Instance->DR);
+//	IMU_UART.hdmarx->Instance->M0AR = (uint32_t)buffer_11;
+//	IMU_UART.hdmarx->Instance->M1AR = (uint32_t)buffer_12;
+//	IMU_UART.hdmarx->Instance->NDTR = IMU_RX_BUFF_LEN * 2;
+//	
+//	SET_BIT(IMU_UART.hdmarx->Instance->CR, DMA_SxCR_DBM);
+//	__HAL_DMA_ENABLE(IMU_UART.hdmarx);
 }
 
 inline void set_acc(jy62_t * jy62, uint8_t * buffer, uint8_t index)
@@ -131,23 +132,29 @@ void IMU_fetch_IDLE_IRQHandle(UART_HandleTypeDef * huart)
 	thisTimeRx = 88 - huart->hdmarx->Instance->NDTR;
 	huart->hdmarx->Instance->NDTR = 88;
 	
-	if((huart->hdmarx->Instance->CR & DMA_SxCR_CT) == RESET)
+	if(huart == &huart1)
 	{
-		huart->hdmarx->Instance->CR |= DMA_SxCR_CT;
-		__HAL_DMA_ENABLE(huart->hdmarx);
-		if(thisTimeRx == IMU_RX_BUFF_LEN)
+		if(DMA_Mem_No1)
 		{
-			imu_fetch(&jy62, buffer_11);
+			huart->hdmarx->Instance->M0AR = (uint32_t)buffer_11;
+			__HAL_DMA_ENABLE(huart->hdmarx);
+			if(thisTimeRx == IMU_RX_BUFF_LEN)
+			{
+				
+				imu_fetch(&jy62, buffer_12);
+			}
 		}
-	}
-	else
-	{
-		huart->hdmarx->Instance->CR &=~ DMA_SxCR_CT;
-		__HAL_DMA_ENABLE(huart->hdmarx);
-		if(thisTimeRx == IMU_RX_BUFF_LEN)
+		else
 		{
-			imu_fetch(&jy62, buffer_12);
+			huart->hdmarx->Instance->M0AR = (uint32_t)buffer_12;
+			__HAL_DMA_ENABLE(huart->hdmarx);
+			if(thisTimeRx == IMU_RX_BUFF_LEN)
+			{
+				imu_fetch(&jy62, buffer_11);
+			}
 		}
+		
+		DMA_Mem_No1 = !DMA_Mem_No1;
 	}
 }
 
@@ -155,8 +162,10 @@ void HAL_UART_ErrorCallback(UART_HandleTypeDef *huart)
 {
 	if( ( huart->ErrorCode & HAL_UART_ERROR_FE ) || ( huart->ErrorCode & HAL_UART_ERROR_NE ) || (huart->ErrorCode & HAL_UART_ERROR_ORE ) )
 	{
-		
+	
 		__HAL_UART_CLEAR_PEFLAG(huart);
-		IMU_Uart_with_DMA_Init();
+		DMA_Mem_No1 = 0;
+		__HAL_UART_ENABLE_IT(&huart1, UART_IT_IDLE);
+		HAL_UART_Receive_DMA(&huart1, buffer_11, 88);
 	}
 }
