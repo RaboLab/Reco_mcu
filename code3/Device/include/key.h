@@ -3,21 +3,9 @@
 
 #include "main.h"
 
-extern uint16_t GPIOA_Trg;
-extern uint16_t GPIOA_Cont;
-
-extern uint16_t GPIOB_Trg;
-extern uint16_t GPIOB_Cont;
-
-extern uint16_t GPIOC_Trg;
-extern uint16_t GPIOC_Cont;
-
-extern uint16_t GPIOD_Trg;
-extern uint16_t GPIOD_Cont;
-
-extern uint16_t GPIOE_Trg;
-extern uint16_t GPIOE_Cont;
-void RAB_GPIO_Key_Read(GPIO_TypeDef *GPIOx);
+void RAB_GPIO_Read(GPIO_TypeDef *GPIOx);
+uint16_t RAB_GPIO_Cnt(GPIO_TypeDef *GPIOx);
+uint16_t RAB_GPIO_Trg(GPIO_TypeDef *GPIOx);
 
 
 #endif

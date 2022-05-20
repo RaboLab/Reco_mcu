@@ -7,6 +7,9 @@
 
 ///******* GPIO_PIN *******///
 ///******* GPIO_PIN *******///
+#define KEY_GPIO_Port GPIOA
+#define KEY_Pin GPIO_PIN_15
+
 #define LED_GPIO_Port GPIOC
 #define LED_Pin GPIO_PIN_10
 
@@ -28,8 +31,9 @@
 ///******* GPS Moudle *******///
 #define GPS_UART huart6
 
-///******* Power Sense *******///
-///******* Power Sense *******///
+///******* RBP Moudle *******///
+///******* RBP Moudle *******///
+#define RBP_UART huart5
 
 
 

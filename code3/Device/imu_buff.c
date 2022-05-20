@@ -1,6 +1,7 @@
 #include "stdlib.h"
 #include "string.h"
 #include "imu_buff.h"
+#include "imu.h"
 
 #include "vofa.h"
 #include "usart.h"
@@ -9,8 +10,8 @@
 #define IMU_BUFF_SIZE 44
 
 
-static uint8_t *Buffer;
-uint8_t *IMU_Data;
+static uint8_t Buffer[44];
+uint8_t IMU_Data[44];
 
 static __IO uint8_t Rx;
 static __IO uint8_t RxCnt;
@@ -18,11 +19,13 @@ static uint8_t RxState;
 uint8_t IMU_Ready;
 void IMU_Init()
 {
+	jy62.isOK = 0;
+	jy62.end[0] = '\n';
+	jy62.end[1] = '\n';
+	
 	RxState = 0;
-	Buffer = (uint8_t *)malloc(IMU_BUFF_SIZE);
 	Buffer[0] = 0x55;
 	Buffer[1] = 0x51;
-	IMU_Data = (uint8_t *)malloc(IMU_BUFF_SIZE);
 	
 	HAL_UART_Receive_IT(&IMU_UART,(uint8_t *)&Rx,1);
 }
@@ -42,9 +45,9 @@ void IMU_RxCallback()
 		Buffer[RxCnt++] = Rx;
 		if(RxCnt == 44)
 		{
-			vofa.printf("Last Bit:%#x\n", Rx);
 			RxState = 0;		// Frame End
-			memcpy(IMU_Data, Buffer, IMU_BUFF_SIZE);
+			if(IMU_Ready == 0)
+				memcpy(IMU_Data, Buffer, IMU_BUFF_SIZE);
 			IMU_Ready = 1;
 		}
 	}
