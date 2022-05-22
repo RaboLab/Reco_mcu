@@ -11,8 +11,8 @@ void TaskCheck(void);
 void RAB_Clock(void);
 
 void Task_1ms(void);
-void Task_10ms(void);
 void Task_20ms(void);
+void Task_50ms(void);
 void Task_100ms(void);
 void Task_1s(void);
 

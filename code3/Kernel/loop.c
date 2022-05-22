@@ -13,19 +13,20 @@
 
 uint16_t RAB_Clk = 0;
 uint8_t time_1ms = 0;		//1K	Hz
-uint8_t time_10ms = 0;	//100	Hz
 uint8_t time_20ms = 0;	//50	Hz
+uint8_t time_50ms = 0;	//20	Hz
 uint8_t time_100ms = 0;	//10	Hz
 uint8_t time_1s = 0;		//1		Hz
 
 typedef enum WrokState_enum
 {
 	zero,
-	inDemo,
-	waitOnline,
+	
   lookVideo,
 	antiTheif,
 	log,
+	power_down_pend,
+	stopPy,
 }WorkState_t;
 
 WorkState_t workState = zero;
@@ -35,7 +36,9 @@ uint8_t isSave;
 uint8_t isLook;
 uint8_t rbpOnline;
 uint8_t rbpRx;
-uint8_t rbpACK; 
+uint8_t rbpSaveACK; 
+uint8_t rbpLookACK;  
+uint8_t rbpOFFACK;
 void loop(void)
 {
 
@@ -52,16 +55,8 @@ void loop(void)
 	RAB_GPIO_Read(KEY_GPIO_Port);
 	RAB_GPIO_Read(KEY_GPIO_Port);
 	
-	if(RAB_GPIO_Cnt(KEY_GPIO_Port) & KEY_Pin)	// enter demo mode
-	{
-		workState = inDemo;
-		Buz_ON();
-		HAL_Delay(1000);
-		Buz_OFF();
-		goto demo;
-	}
+	workState = zero;
 	
-	workState = waitOnline;
 	while( gps.isOK == 0 || jy62.isOK == 0)		//wait until those online
 	{
 		if(IMU_Ready)
@@ -96,22 +91,6 @@ void loop(void)
 			pack_load(&gps, GPS_size);
 		}
 		TaskCheck();
-		
-	}
-demo:
-	while (1)
-	{
-		if(IMU_Ready)
-		{
-			IMU_Calc(&jy62, IMU_Data);
-			IMU_Ready = 0;
-		}
-		if(GPS_Ready)
-		{
-			GPS_GetRawData();
-			GPS_Ready = 0;
-		}
-		//TaskCheck();
 	}
 }
 
@@ -128,12 +107,8 @@ void Task_1ms()
 		return;
 	HAL_UART_Transmit(&RBP_UART, open->load, open->lens, 0xFF);
 }
-void Task_10ms()
-{
-	
-}
 
-void Task_20ms()	
+void Task_20ms()		//KEY AND STATUS function
 {
 	static uint32_t LONG_PRESS = 0;
 	static uint32_t PRESS_CNT = 0;
@@ -142,7 +117,7 @@ void Task_20ms()
 	{
 		PRESS_CNT = 1;
 	}
-	if((RAB_GPIO_Cnt(KEY_GPIO_Port) & KEY_Pin)) 		//Key Pressed
+	if((RAB_GPIO_Cnt(KEY_GPIO_Port) & KEY_Pin)) 		//while Key Pressed
 	{
 		LONG_PRESS++;
 	 (LONG_PRESS == 1)   ? buz_time = 1					//short press   //save
@@ -158,32 +133,106 @@ void Task_20ms()
 			:(LONG_PRESS <= 100) ? PRESS_CNT = 2   //LOOK		//1s - 2s
 			:											(PRESS_CNT = 3); //Anti   //2s - 3s
 			
-			if(workState == log)
+			if(workState == log)		//different function
 			{
 				if(PRESS_CNT == 1)
-					isSave = 1;
+					isSave = 2;		//Save two file
 				else if(PRESS_CNT == 2)
 					workState = lookVideo;
-				else if(PRESS_CNT == 3)
-					workState = antiTheif;
+				else if(PRESS_CNT == 3)	//power_down
+					workState = power_down_pend;
 			}
-			
-			else if(workState == antiTheif)
+			else if(workState == antiTheif)		//original state
 			{
-				workState = log;
-				RPW_ON();
+				if(PRESS_CNT == 3)
+				{
+					workState = lookVideo;		// long long press -> video
+				}
+				else
+				{
+					workState = log;		// 1 2 -> log
+				}
 			}
-			
+			else if(workState == stopPy)      //original state
+			{
+					workState = lookVideo;
+			}
+			else if(workState == lookVideo)       //original state
+			{
+				if(PRESS_CNT == 3)
+					workState = power_down_pend;		//Save two file
+				else if(PRESS_CNT == 1)
+					workState = log;
+				else
+					workState = stopPy;
+			}
 			PRESS_CNT = 0;
 			LONG_PRESS = 0;
 		}
-		else							//nothing happened
-		{
-			
-		}
 	}
+	// ******************  SAVE FUNCTION  ******************//
+	// ******************  SAVE FUNCTION  ******************//
+	if(isSave)
+	{
+		RBP_SAVE_SET();
+		if(rbpSaveACK) 
+		{
+			isSave --;
+		}
+		rbpSaveACK = 0;
+	}
+	else
+		RBP_SAVE_RESET();
+	// ******************  SAVE FUNCTION  ******************//
+	// ******************  SAVE FUNCTION  ******************//
+	
 }
-void Task_100ms()			//IO
+
+uint8_t online;
+uint8_t look;
+uint8_t save;
+void Task_50ms()		//state change
+{
+	static WorkState_t last;
+	if(last != workState)
+	{
+		buz_time = 3;		// 300ms
+		rbpSaveACK = 0; rbpLookACK = 0; rbpOFFACK = 0;  // clean all signals
+		isSave = 0; RBP_SAVE_RESET();
+		
+		if(workState == antiTheif)			//current workstate
+		{
+			RPW_OFF();
+		}
+		else if(workState == log)				//current workstate
+		{
+			RPW_ON();
+			RBP_CALLONLINE();
+			RBP_LOOK_RESET();
+		}
+		else if(workState == lookVideo)	//current workstate
+		{
+			RPW_ON();
+			RBP_CALLONLINE();
+			RBP_LOOK_SET();
+		}else if(workState == power_down_pend)
+		{
+			RBP_CALLOFFLINE();
+			RBP_LOOK_RESET();  //this value doesn't matter
+		}
+		else if(workState == stopPy)      //current workstate
+		{
+			RBP_CALLOFFLINE();
+			RBP_LOOK_SET();
+		}
+		
+	}
+	last = workState;
+	online = HAL_GPIO_ReadPin(SORI_1_GPIO_Port,SORI_1_Pin);
+	save = HAL_GPIO_ReadPin(SORI_4_GPIO_Port,SORI_4_Pin);
+	look = HAL_GPIO_ReadPin(SORI_5_GPIO_Port,SORI_5_Pin);
+}
+void Task_100ms()			//IO CONTROL
 {
 	if(IMU_Heavy)
 	{
@@ -204,45 +253,40 @@ void Task_100ms()			//IO
 		buz_time = 0;
 		Buz_OFF();
 	}
-	if(isSave)
-	{
-		
-	}
-	else
-	{
-		
-	}
+	
 }
 void Task_1s()
 {
 	static uint8_t IMU_Heavy_CleanCnt = 0;
 	static uint8_t RBP_PW_DOWN_CNT = 10;
-	static WorkState_t last;
 	
-	if(IMU_Heavy_CleanCnt++ > 5)
+	if(IMU_Heavy_CleanCnt++ > 5)		//anti_theif 5 seconds count down cleaner
 	{
 		IMU_Heavy_CleanCnt = 0;
 		IMU_Heavy = 0;
 	}
-	
-	if(last == log && workState == antiTheif)
+
+	if(rbpOFFACK == 1 && workState == power_down_pend)
 	{
-		RBP_PW_DOWN_CNT=10;
+		if(RBP_PW_DOWN_CNT == 0)
+		{
+			workState = antiTheif;
+			
+			RBP_PW_DOWN_CNT = 13;
+			rbpOFFACK = 0;
+		}
+		else
+		{
+			RBP_PW_DOWN_CNT--;
+		}
 	}
-	if(RBP_PW_DOWN_CNT>0)
-	{
-		if(--RBP_PW_DOWN_CNT == 0)
-			RPW_OFF();
-	}
-	
-	last = workState;
 }
 
 void TaskCheck(void)
 {
 	if(time_1ms)		{time_1ms--;		Task_1ms();		}
-	if(time_10ms)		{time_10ms--;		Task_10ms();	}
 	if(time_20ms)		{time_20ms--;		Task_20ms();	}
+	if(time_50ms)		{time_50ms--;		Task_50ms();	}
 	if(time_100ms)	{time_100ms--;	Task_100ms();	}
 	if(time_1s)			{time_1s--;			Task_1s();		}
 }
@@ -251,24 +295,29 @@ void RAB_Clock(void)
 {
 	RAB_Clk++;
 	time_1ms = 1;
-	if(!(RAB_Clk % 10))		{time_10ms++;			}
 	if(!(RAB_Clk % 20))		{time_20ms++;			}
+	if(!(RAB_Clk % 50))		{time_50ms++;			}
 	if(!(RAB_Clk % 100))	{time_100ms++;		}
 	if(!(RAB_Clk % 1000))	{time_1s++;			RAB_Clk = 0;	}
 }
 
 void RBP_RxCallback(void)
 {
-	static uint8_t rxCnt = 0;
-	if(rbpRx == '\n')
-	{
-		rxCnt++;
-	}
-	else
-	{
-		rxCnt = 0;
-	}
-	if(rxCnt == 3)
-		rbpACK = 1;
+	static uint8_t rxOFFCnt = 0;
+	static uint8_t rxSaveCnt = 0;
+	static uint8_t rxLookCnt = 0;
+	
+	if(rbpRx == '\n') rxLookCnt++;
+	else 							rxLookCnt = 0;
+	if(rxLookCnt == 3) {rbpLookACK = 1; rxLookCnt = 0; buz_time = 1;}
+	
+	if(rbpRx == '\t') rxSaveCnt++;
+	else 							rxSaveCnt = 0;
+	if(rxSaveCnt == 3) {rbpSaveACK = 1; rxSaveCnt = 0; buz_time = 1;}
+	
+	if(rbpRx == '\r') rxOFFCnt++;
+	else 							rxOFFCnt = 0; 
+	if(rxOFFCnt == 3) {rbpOFFACK = 1; rxOFFCnt = 0; buz_time = 1;}
+	
 	HAL_UART_Receive_IT(&RBP_UART, &rbpRx, 1);
 }

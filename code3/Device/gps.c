@@ -34,7 +34,7 @@ void GPS_RxCallback(void)
 		rxCnt = 0;
 		goto end;
 	}
-	else if(rx == '\n' || rxCnt >= 256) //end
+	else if(rx == '\n' || rxCnt >= 255) //end
 	{
 		rxCnt = 0;
 		//process

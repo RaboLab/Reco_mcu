@@ -339,7 +339,7 @@
               <MiscControls></MiscControls>
               <Define>USE_HAL_DRIVER,STM32F205xx</Define>
               <Undefine></Undefine>
-              <IncludePath>../Core/Inc;    ../Drivers/STM32F2xx_HAL_Driver/Inc;    ../Drivers/STM32F2xx_HAL_Driver/Inc/Legacy;    ../Drivers/CMSIS/Device/ST/STM32F2xx/Include;    ../Drivers/CMSIS/Include;    ../Config/include;    ../Debug/include;    ../Device/include;    ../Kernel/include</IncludePath>
+              <IncludePath>../Core/Inc;     ../Drivers/STM32F2xx_HAL_Driver/Inc;     ../Drivers/STM32F2xx_HAL_Driver/Inc/Legacy;     ../Drivers/CMSIS/Device/ST/STM32F2xx/Include;     ../Drivers/CMSIS/Include;     ../Config/include;     ../Debug/include;     ../Device/include;     ../Kernel/include</IncludePath>
             </VariousControls>
           </Cads>
           <Aads>

@@ -57,6 +57,14 @@ void Error_Handler(void);
 /* USER CODE END EFP */
 
 /* Private defines -----------------------------------------------------------*/
+#define SIRO_6_Pin GPIO_PIN_6
+#define SIRO_6_GPIO_Port GPIOB
+#define SORI_5_Pin GPIO_PIN_7
+#define SORI_5_GPIO_Port GPIOB
+#define SORI_4_Pin GPIO_PIN_8
+#define SORI_4_GPIO_Port GPIOB
+#define SORI_1_Pin GPIO_PIN_9
+#define SORI_1_GPIO_Port GPIOB
 /* USER CODE BEGIN Private defines */
 
 /* USER CODE END Private defines */

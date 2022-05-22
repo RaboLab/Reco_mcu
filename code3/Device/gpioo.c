@@ -31,3 +31,30 @@ inline void Buz_OFF(void)
 {
 	HAL_GPIO_WritePin(BUZZER_GPIO_Port,BUZZER_Pin, GPIO_PIN_RESET);		//Buzzer OFF
 }
+
+inline void RBP_CALLONLINE(void)
+{
+	HAL_GPIO_WritePin(SORI_1_GPIO_Port,SORI_1_Pin, GPIO_PIN_SET);		//GPIO SET
+}
+inline void RBP_CALLOFFLINE(void)
+{
+	HAL_GPIO_WritePin(SORI_1_GPIO_Port,SORI_1_Pin, GPIO_PIN_RESET);		//Buzzer OFF
+}
+
+inline void RBP_SAVE_SET(void)
+{
+	HAL_GPIO_WritePin(SORI_4_GPIO_Port,SORI_4_Pin, GPIO_PIN_SET);		//Buzzer OFF
+}
+inline void RBP_SAVE_RESET(void)
+{
+	HAL_GPIO_WritePin(SORI_4_GPIO_Port,SORI_4_Pin, GPIO_PIN_RESET);		//Buzzer OFF
+}
+
+inline void RBP_LOOK_SET(void)
+{
+	HAL_GPIO_WritePin(SORI_5_GPIO_Port,SORI_5_Pin, GPIO_PIN_SET);		//Buzzer OFF
+}
+inline void RBP_LOOK_RESET(void)
+{
+	HAL_GPIO_WritePin(SORI_5_GPIO_Port,SORI_5_Pin, GPIO_PIN_RESET);		//Buzzer OFF
+}
