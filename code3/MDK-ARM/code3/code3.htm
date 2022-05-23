@@ -3,7 +3,7 @@
 <title>Static Call Graph - [code3\code3.axf]</title></head>
 <body><HR>
 <H1>Static Call Graph for image code3\code3.axf</H1><HR>
-<BR><P>#&#060CALLGRAPH&#062# ARM Linker, 5060960: Last Updated: Sun May 22 02:07:42 2022
+<BR><P>#&#060CALLGRAPH&#062# ARM Linker, 5060960: Last Updated: Mon May 23 22:31:35 2022
 <BR><P>
 <H3>Maximum Stack Usage =        484 bytes + Unknown(Functions without stacksize, Cycles, Untraceable Function Pointers)</H3><H3>
 Call chain for Maximum Stack Depth:</H3>
@@ -1479,7 +1479,8 @@ Global Symbols
 </UL>
 
 <P><STRONG><a name="[14b]"></a>HAL_GPIO_ReadPin</STRONG> (Thumb, 16 bytes, Stack size 0 bytes, stm32f2xx_hal_gpio.o(i.HAL_GPIO_ReadPin))
-<BR><BR>[Called By]<UL><LI><a href="#[143]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;Task_50ms
+<BR><BR>[Called By]<UL><LI><a href="#[155]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;loop
+<LI><a href="#[143]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;Task_50ms
 </UL>
 
 <P><STRONG><a name="[e6]"></a>HAL_GPIO_WritePin</STRONG> (Thumb, 12 bytes, Stack size 0 bytes, stm32f2xx_hal_gpio.o(i.HAL_GPIO_WritePin))
@@ -2150,11 +2151,12 @@ Global Symbols
 <BR>[Called By]<UL><LI><a href="#[dd]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;__support_ldexp
 </UL>
 
-<P><STRONG><a name="[155]"></a>loop</STRONG> (Thumb, 182 bytes, Stack size 0 bytes, loop.o(i.loop))
+<P><STRONG><a name="[155]"></a>loop</STRONG> (Thumb, 206 bytes, Stack size 0 bytes, loop.o(i.loop))
 <BR><BR>[Stack]<UL><LI>Max Depth = 484<LI>Call Chain = loop &rArr; GPS_GetRawData &rArr; atof &rArr; __strtod_int &rArr; _local_sscanf &rArr; _scanf_real &rArr; _scanf_really_real &rArr; _fp_value &rArr; _btod_etento &rArr; _btod_emul &rArr; _e2e
 </UL>
 <BR>[Calls]<UL><LI><a href="#[102]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;HAL_Delay
 <LI><a href="#[f0]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;HAL_UART_Receive_IT
+<LI><a href="#[14b]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;HAL_GPIO_ReadPin
 <LI><a href="#[140]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;TaskCheck
 <LI><a href="#[156]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;pack_load
 <LI><a href="#[ef]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;GPS_Init

@@ -69,12 +69,16 @@ void loop(void)
 			GPS_GetRawData();
 			GPS_Ready = 0;
 		}
+		if(HAL_GPIO_ReadPin(KEY_GPIO_Port,KEY_Pin) == 0)
+		{
+			break;
+		}
 	}
 	
 	Buz_ON();
 	HAL_Delay(100);  //
 	Buz_OFF();
-	
+	HAL_Delay(500);  //
 	workState = antiTheif;		//power up mode
 	while (1)			////////////////////////////////////		// normal while 1
 	{
