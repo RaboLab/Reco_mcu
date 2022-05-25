@@ -35,7 +35,9 @@
 ///******* RBP Moudle *******///
 #define RBP_UART huart5
 
-
+///******* GSM Moudle *******///
+///******* GSM Moudle *******///
+#define GSM_UART huart3
 
 ///******* FOC Current Set *******///
 ///******* FOC Current Set *******///

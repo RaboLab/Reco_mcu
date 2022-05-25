@@ -32,6 +32,7 @@
 "code3\imu_buff.o"
 "code3\gps.o"
 "code3\ring.o"
+"code3\gsm.o"
 "code3\loop.o"
 "code3\loop_it.o"
 --strict --scatter "code3\code3.sct"

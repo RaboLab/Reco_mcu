@@ -1,10 +1,12 @@
 #include "loop.h"
 #include "loop_it.h"
+#include "adc.h"
 
 #include "imu.h"
 #include "imu_buff.h"
 #include "gps.h"
 #include "ring.h"
+#include "gsm.h"
 
 #include "key.h"
 #include "gpioo.h"
@@ -39,10 +41,16 @@ uint8_t rbpRx;
 uint8_t rbpSaveACK; 
 uint8_t rbpLookACK;  
 uint8_t rbpOFFACK;
+
+uint8_t GSM_isTx;
+uint8_t GSM_isClear;
+
+uint8_t adc_mode;
+uint16_t adc_value;
+__IO float votage;
+
 void loop(void)
 {
-
-	
 	//Communication Init//
 	vofa.init();
 
@@ -56,6 +64,19 @@ void loop(void)
 	RAB_GPIO_Read(KEY_GPIO_Port);
 	
 	workState = zero;
+	IMU_set_OffsetEular(&GPS_UART);
+	
+	adc_mode = 1;
+	if(HAL_GPIO_ReadPin(KEY_GPIO_Port,KEY_Pin) == 0)
+	{
+		adc_mode = 0;
+		Buz_ON();
+	}
+
+	while (HAL_GPIO_ReadPin(KEY_GPIO_Port,KEY_Pin) == 0);		//keep press
+	Buz_OFF();
+	HAL_Delay(100);
+	
 	
 	while( gps.isOK == 0 || jy62.isOK == 0)		//wait until those online
 	{
@@ -76,10 +97,14 @@ void loop(void)
 	}
 	
 	Buz_ON();
-	HAL_Delay(100);  //
+	HAL_Delay(100);  //self check pass
 	Buz_OFF();
 	HAL_Delay(500);  //
+	
+	//GSM_Init();
 	workState = antiTheif;		//power up mode
+	
+
 	while (1)			////////////////////////////////////		// normal while 1
 	{
 		if(IMU_Ready)
@@ -110,10 +135,24 @@ void Task_1ms()
 	if(open == NULL)
 		return;
 	HAL_UART_Transmit(&RBP_UART, open->load, open->lens, 0xFF);
+	
+	if(GSM_isTx)
+	{
+		GSM_Tx();
+		GSM_isTx = 0;
+		
+	}
+	if(GSM_isClear)
+	{
+		GSM_RxClear();
+		GSM_isClear = 0;
+	}
 }
 
 void Task_20ms()		//KEY AND STATUS function
 {
+	// ******************  KEY FUNCTION  ******************//
+	// ******************  KEY FUNCTION  ******************//
 	static uint32_t LONG_PRESS = 0;
 	static uint32_t PRESS_CNT = 0;
 	RAB_GPIO_Read(KEY_GPIO_Port);
@@ -174,6 +213,26 @@ void Task_20ms()		//KEY AND STATUS function
 			LONG_PRESS = 0;
 		}
 	}
+	// ******************  ADC FUNCTION  ******************//
+	// ******************  ADC FUNCTION  ******************//
+	if(adc_mode)
+	{
+		if(votage > 12.0)  //power_up
+		{
+			if(workState == antiTheif)       //original state
+			{
+				workState = log;
+			}
+		}
+		else
+		{
+			if(workState == log) 
+			{
+				workState = power_down_pend;
+			}
+		}
+	}
+	
 	// ******************  SAVE FUNCTION  ******************//
 	// ******************  SAVE FUNCTION  ******************//
 	if(isSave)
@@ -187,8 +246,6 @@ void Task_20ms()		//KEY AND STATUS function
 	}
 	else
 		RBP_SAVE_RESET();
-	// ******************  SAVE FUNCTION  ******************//
-	// ******************  SAVE FUNCTION  ******************//
 	
 }
 
@@ -232,21 +289,26 @@ void Task_50ms()		//state change
 		
 	}
 	last = workState;
+	
 	online = HAL_GPIO_ReadPin(SORI_1_GPIO_Port,SORI_1_Pin);
 	save = HAL_GPIO_ReadPin(SORI_4_GPIO_Port,SORI_4_Pin);
 	look = HAL_GPIO_ReadPin(SORI_5_GPIO_Port,SORI_5_Pin);
 }
 void Task_100ms()			//IO CONTROL
 {
+	static uint8_t last_IMU_Heavy;
 	if(IMU_Heavy)
 	{
 		LED_ON();
+		buz_time = 10;
+		if(last_IMU_Heavy == 0)
+			isSave = 1;
 	}
 	else
 	{
 		LED_OFF();
 	}
-	
+	last_IMU_Heavy = IMU_Heavy;
 	if(buz_time)
 	{
 		Buz_ON();
@@ -262,8 +324,8 @@ void Task_100ms()			//IO CONTROL
 void Task_1s()
 {
 	static uint8_t IMU_Heavy_CleanCnt = 0;
-	static uint8_t RBP_PW_DOWN_CNT = 10;
-	
+	static uint8_t RBP_PW_DOWN_CNT = 13;
+	static uint8_t auto_power_off = 60;
 	if(IMU_Heavy_CleanCnt++ > 5)		//anti_theif 5 seconds count down cleaner
 	{
 		IMU_Heavy_CleanCnt = 0;
@@ -284,6 +346,24 @@ void Task_1s()
 			RBP_PW_DOWN_CNT--;
 		}
 	}
+	
+	if( adc_mode && (votage < 12.0) && workState == lookVideo)
+	{
+		if(auto_power_off == 0)
+		{
+			workState = power_down_pend;
+			auto_power_off = 60;
+		}
+		else
+		{
+			auto_power_off--;
+		}
+	}
+	HAL_ADC_Start(&hadc1);
+	HAL_ADC_PollForConversion(&hadc1,0xFFFF);
+	adc_value = HAL_ADC_GetValue(&hadc1);
+	votage = adc_value  * 3.3 * 5 / 4096.0 ;
+
 }
 
 void TaskCheck(void)

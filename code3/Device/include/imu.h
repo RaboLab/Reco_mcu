@@ -19,7 +19,7 @@ extern uint8_t IMU_size;
 void IMU_Calc(jy62_t * jy62t, uint8_t* buffer);
 static void IMU_Uart_with_DMA_Init(void);
 void IMU_set_Z_Axis(UART_HandleTypeDef * huart, jy62_t * jy62t);
-void IMU_set_OffsetEular(UART_HandleTypeDef * huart, jy62_t * jy62t);
+void IMU_set_OffsetEular(UART_HandleTypeDef * huart);
 void IMU_Fetch_Test_IT(void);
 
 static void set_acc(jy62_t * jy62, uint8_t * buffer, uint8_t index);

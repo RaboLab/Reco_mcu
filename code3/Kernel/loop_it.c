@@ -5,6 +5,7 @@
 #include "HardwareDefV1_0.h"
 #include "imu_buff.h"
 #include "gps.h"
+#include "gsm.h"
 
 #include "vofa.h"
 
@@ -16,13 +17,17 @@ void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart)
 	{
 		IMU_RxCallback();
 	}
-	if(huart == &GPS_UART)
+	else if(huart == &GPS_UART)
 	{
 		GPS_RxCallback();
 	}
-	if(huart == &RBP_UART)
+	else if(huart == &RBP_UART)
 	{
 		RBP_RxCallback();
+	}
+	else if(huart == &GSM_UART)
+	{
+		GSM_RxCallback();
 	}
 }
 

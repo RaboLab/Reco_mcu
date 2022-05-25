@@ -47,7 +47,7 @@ void IMU_Calc(jy62_t * jy62t, uint8_t* buffer)
 	}
 }
 
-void IMU_set_OffsetEular(UART_HandleTypeDef * huart, jy62_t * jy62t)
+void IMU_set_OffsetEular(UART_HandleTypeDef * huart)
 {
 	// 1. Unlock
 	uint8_t Unlock[5] = {0xFF, 0xAA, 0x69, 0x88, 0xB5};
